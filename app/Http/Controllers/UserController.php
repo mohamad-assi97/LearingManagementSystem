@@ -30,23 +30,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // 
-        $request->validate([
-            'name' => 'required', 
-            'email' => 'required|email|unique:users,email', 
-            'password' => 'required|min:8', 
-            'role' => 'required|in:admin,student,teacher', 
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:student,teacher,admin',
         ]);
     
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password), 
-            'role' => $request->role,
-        ]);
+     
+        $user = new User();
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->password = bcrypt($validated['password']);
+        $user->role = $validated['role'];
     
         
-        return response()->json(['message' => 'User created successfully'], 201);
+        $user->save();
+    
+       
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
     /**
      * Display the specified resource.
@@ -91,7 +93,7 @@ class UserController extends Controller
         ]);
     
        
-        return response()->json(['message' => 'User updated successfully'], 200);
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**
